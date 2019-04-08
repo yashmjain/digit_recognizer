@@ -20,18 +20,15 @@ def convert_pixel_to_image(img_pixel):
         col=col+28
     return img
 
-def display_image(imgs_pixel):
-    #df = np.vstack((imgs_pixel[0].values,imgs_pixel[1].values,imgs_pixel[2].values,imgs_pixel[3].values,imgs_pixel[4].values,imgs_pixel[5].values,imgs_pixel[6].values,imgs_pixel[7].values,imgs_pixel[8].values,imgs_pixel[9].values,imgs_pixel[10].values,imgs_pixel[11].values,imgs_pixel[12].values,imgs_pixel[13].values,imgs_pixel[14].values,imgs_pixel[15].values,imgs_pixel[16].values,imgs_pixel[17].values,imgs_pixel[18].values,imgs_pixel[19].values,imgs_pixel[20].values,imgs_pixel[21].values,imgs_pixel[22].values,imgs_pixel[23].values,imgs_pixel[24].values,imgs_pixel[25].values,imgs_pixel[26].values,imgs_pixel[27].values))
-        
-    plt.imsave('1_new.png', np.array(imgs_pixel).reshape(28,28))
-    
+def display_image(imgs_pixel):        
+    plt.imshow(imgs_pixel)
         
     
 
 def main():
     rows = load_image_binary_data("./data/train.csv")
     #img = convert_pixel_to_image(rows.iloc[:1,:])    
-    display_image(rows.iloc[:1,:])
+    display_image(np.array(rows.iloc[:1,:]).reshape(28,28))
 
 
 
