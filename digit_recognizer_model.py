@@ -8,7 +8,7 @@ import numpy as np
 
 IMAGE_TRAIN_PIXEL_FILE = "./data/train.csv"
 IN_CHANNEL = 1 
-OUT_CHANNEL = 1
+OUT_CHANNEL = 2
 KERNEL_SIZE = 3
 PADDING = 1
 
