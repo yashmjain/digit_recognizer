@@ -9,8 +9,8 @@ def main():
     print ()
     dr = digit_recognizer()
     output = dr()
-    for filter in range(OUT_CHANNEL):
-        display_image(output[0][filter].detach().numpy())
+    for filter_no in range(OUT_CHANNEL):       
+        display_image(output[0][filter_no].detach().numpy())
     
 
 if __name__ == '__main__':

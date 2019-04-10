@@ -20,8 +20,10 @@ def convert_pixel_to_image(img_pixel):
         col=col+28
     return img
 
-def display_image(imgs_pixel):        
-    plt.imshow(imgs_pixel)
+def display_image(imgs_pixel):   
+    #print("The pixel of the image is ::",imgs_pixel)
+    plt.imshow(imgs_pixel,cmap='gray')
+    plt.show()
         
     
 

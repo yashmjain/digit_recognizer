@@ -7,3 +7,4 @@
 __pycache__/digit_recognizer_layers.cpython-36.pyc
 __pycache__/digit_recognizer_model.cpython-36.pyc
 *.pyc
+*.pyc
