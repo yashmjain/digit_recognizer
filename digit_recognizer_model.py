@@ -18,16 +18,8 @@ class digit_recognizer(nn.Module):
         self.cnn = digit_recognizer_layers.cnn(in_channel=IN_CHANNEL,num_filter=OUT_CHANNEL,kernel_size=KERNEL_SIZE,padding=PADDING)
         
         
-    def forward(self):
-        images_data = load_image_binary_data(IMAGE_TRAIN_PIXEL_FILE)
-        load_first_image = images_data.iloc[:1,:]
-        load_first_image = np.array(load_first_image).reshape(28,28)
-        print("Display original image")
-        display_image(load_first_image)
-        load_first_image = torch.from_numpy(load_first_image).type(torch.FloatTensor)
-        load_first_image = load_first_image.unsqueeze(0).unsqueeze(0)
-        
-        output_image = self.cnn(load_first_image)
+    def forward(self,input):       
+        output_image = self.cnn(input)  # input shape batch_size,out_channels,Width,Height
         return output_image
         
 
