@@ -13,10 +13,15 @@ def main():
 #    remove_header = df.iloc[:1,0:4]
 #    print(remove_header)
     
-    x =  torch.rand(1,2,4,4)
-    print(x[0][0])
-    print(x[0][1])
-    print(x)
+#    x =  torch.rand(1,2,4,4)
+#    print(x[0][0])
+#    print(x[0][1])
+#    print(x)
+    
+    a = torch.randn(4, 4)
+    print(a)
+    print(torch.argmax(a, dim=1))
+
 
 if __name__ == "__main__":
     main()

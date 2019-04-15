@@ -9,7 +9,7 @@ import torch
 import torch.utils.data as data
 import torch.optim as optim
 import torch.nn as nn
-import util
+#import util
 
 
 
@@ -68,11 +68,11 @@ def main():
     
     #Declare the checkpointsaver to save the model
     
-    saver = util.CheckpointSaver('./trained_model',
-                                 max_checkpoints=4,
-                                 metric_name='NLL',
-                                 maximize_metric=args.maximize_metric,
-                                 log=log)
+#    saver = util.CheckpointSaver('./trained_model',
+#                                 max_checkpoints=4,
+#                                 metric_name='NLL',
+#                                 maximize_metric=args.maximize_metric,
+#                                 log=log)
     
     epoch = 10 
     
@@ -91,21 +91,41 @@ def main():
     
 def train(train_loader,optimizer,model,loss_fn):    
     #train the model   
-    for batch_no,(train_image_data,train_label_data) in enumerate(train_loader):
+    avg_loss = 0
+    cum_loss = 0
+    accuracy_epoch = 0
+    for batch_no,(train_image_data,train_label_data) in enumerate(train_loader,start =1 ):
         optimizer.zero_grad()
         output = model(train_image_data)       #train_image_data has shape batch_size*in_channel*H*W
         loss = loss_fn(output, train_label_data.squeeze()) 
         print("The loss during training is  :: ",loss.item())
+        cum_loss = cum_loss + loss.item()
+        avg_loss = cum_loss/batch_no
+        print("The average loss across batch is :: ",avg_loss)
+        
+        #Calculate the accuracy 
+        #actual_label = torch.argmax()
+        preds = torch.argmax(output,dim=1)
+        accuracy = torch.sum(preds == train_label_data)
+        accuracy_epoch = accuracy_epoch +accuracy.item()
+        print("The accuracy across epoch is ::",accuracy_epoch/batch_no)
+        
+        
         print("The batch no is ",batch_no)
         loss.backward()
         optimizer.step()
         
 def evaluate(eval_loader,model,loss_fn):
     #eval the data
-    for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader):
+    cum_loss = 0
+    avg_eval_loss = 0
+    for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader,start = 1):
         eval_output = model(eval_image_data)
         eval_loss = loss_fn(eval_output, eval_label_data.squeeze())
         print("The loss during eval_loss is  :: ",eval_loss.item())
+        cum_loss = cum_loss + eval_loss.item()
+        avg_eval_loss = cum_loss/batch_no
+        print("The average evaluation loss across batch is :: ",avg_eval_loss)
 
         
     
