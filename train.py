@@ -9,6 +9,7 @@ import torch
 import torch.utils.data as data
 import torch.optim as optim
 import torch.nn as nn
+import util
 
 
 
@@ -65,11 +66,21 @@ def main():
     #initialize the cross entropy loss 
     loss_fn = nn.CrossEntropyLoss()
     
+    #Declare the checkpointsaver to save the model
+    
+    saver = util.CheckpointSaver('./trained_model',
+                                 max_checkpoints=4,
+                                 metric_name='NLL',
+                                 maximize_metric=args.maximize_metric,
+                                 log=log)
+    
     epoch = 10 
     
     for i in range(epoch):
-        train(train_loader,optimizer,model,loss_fn)
+        train(train_loader,optimizer,model,loss_fn)        
+        print("Starting evaluation ")
         evaluate(eval_loader,model,loss_fn)
+        print("Completed epoch ",i)
         
     
     
@@ -84,6 +95,8 @@ def train(train_loader,optimizer,model,loss_fn):
         optimizer.zero_grad()
         output = model(train_image_data)       #train_image_data has shape batch_size*in_channel*H*W
         loss = loss_fn(output, train_label_data.squeeze()) 
+        print("The loss during training is  :: ",loss.item())
+        print("The batch no is ",batch_no)
         loss.backward()
         optimizer.step()
         
@@ -92,6 +105,8 @@ def evaluate(eval_loader,model,loss_fn):
     for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader):
         eval_output = model(eval_image_data)
         eval_loss = loss_fn(eval_output, eval_label_data.squeeze())
+        print("The loss during eval_loss is  :: ",eval_loss.item())
+
         
     
 
