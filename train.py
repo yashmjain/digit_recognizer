@@ -74,7 +74,7 @@ def main():
 #                                 maximize_metric=args.maximize_metric,
 #                                 log=log)
     
-    epoch = 10 
+    epoch = 30 
     
     for i in range(epoch):
         train(train_loader,optimizer,model,loss_fn)        
@@ -105,10 +105,10 @@ def train(train_loader,optimizer,model,loss_fn):
         
         #Calculate the accuracy 
         #actual_label = torch.argmax()
-        preds = torch.argmax(output,dim=1)
-        accuracy = torch.sum(preds == train_label_data)
-        accuracy_epoch = accuracy_epoch +accuracy.item()
-        print("The accuracy across epoch is ::",accuracy_epoch/batch_no)
+        
+        #accuracy = torch.sum(preds == train_label_data)
+        #accuracy_epoch = accuracy_epoch +accuracy.item()
+       
         
         
         print("The batch no is ",batch_no)
@@ -119,6 +119,7 @@ def evaluate(eval_loader,model,loss_fn):
     #eval the data
     cum_loss = 0
     avg_eval_loss = 0
+    running_corrects = 0 
     for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader,start = 1):
         eval_output = model(eval_image_data)
         eval_loss = loss_fn(eval_output, eval_label_data.squeeze())
@@ -126,6 +127,9 @@ def evaluate(eval_loader,model,loss_fn):
         cum_loss = cum_loss + eval_loss.item()
         avg_eval_loss = cum_loss/batch_no
         print("The average evaluation loss across batch is :: ",avg_eval_loss)
+        preds = torch.argmax(eval_output,dim=1)
+        running_corrects += torch.sum(preds == eval_label_data.squeeze())
+        print("The accuracy across epoch is ::",running_corrects.item()/(len(eval_label_data)))
 
         
     
