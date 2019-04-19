@@ -49,6 +49,8 @@ def main():
     
     device, gpu_ids = util.get_available_devices()
     
+    print("The device on which the model is running is :: ",device)
+    
     model.to(device)
     
     train_dataset = torch.utils.data.TensorDataset(torch.from_numpy(x_train).float(),
