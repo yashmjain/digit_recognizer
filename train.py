@@ -9,7 +9,7 @@ import torch
 import torch.utils.data as data
 import torch.optim as optim
 import torch.nn as nn
-#import util
+import util
 
 
 
@@ -47,6 +47,10 @@ def main():
     #Initialize the model 
     model = digit_recognizer()
     
+    device, gpu_ids = util.get_available_devices()
+    
+    model.to(device)
+    
     train_dataset = torch.utils.data.TensorDataset(torch.from_numpy(x_train).float(),
                                        torch.from_numpy(y_train).long())
     
@@ -74,12 +78,14 @@ def main():
 #                                 maximize_metric=args.maximize_metric,
 #                                 log=log)
     
+    
+    
     epoch = 30 
     
     for i in range(epoch):
-        train(train_loader,optimizer,model,loss_fn)        
+        train(train_loader,optimizer,model,loss_fn,device)        
         print("Starting evaluation ")
-        evaluate(eval_loader,model,loss_fn)
+        evaluate(eval_loader,model,loss_fn,device)
         print("Completed epoch ",i)
         
     
@@ -89,38 +95,35 @@ def main():
     
     
     
-def train(train_loader,optimizer,model,loss_fn):    
+def train(train_loader,optimizer,model,loss_fn,device):    
     #train the model   
     avg_loss = 0
     cum_loss = 0
-    running_corrects = 0
+
     for batch_no,(train_image_data,train_label_data) in enumerate(train_loader,start =1 ):
+        train_image_data = train_image_data.to(device)
+        train_label_data = train_label_data.to(device)
         optimizer.zero_grad()
         output = model(train_image_data)       #train_image_data has shape batch_size*in_channel*H*W
         loss = loss_fn(output, train_label_data.squeeze()) 
         print("The loss during training is  :: ",loss.item())
         cum_loss = cum_loss + loss.item()
         avg_loss = cum_loss/batch_no
-        print("The average loss across batch is :: ",avg_loss)
-        
-        #Calculate the accuracy 
-        #actual_label = torch.argmax()
-        
-        #accuracy = torch.sum(preds == train_label_data)
-        #accuracy_epoch = accuracy_epoch +accuracy.item()        
-     
-        
+        print("The average loss across batch is :: ",avg_loss)        
         print("The batch no is ",batch_no)
         loss.backward()
         optimizer.step()
         
-def evaluate(eval_loader,model,loss_fn):
+def evaluate(eval_loader,model,loss_fn,device):
     #eval the data
     cum_loss = 0
     avg_eval_loss = 0
     running_corrects = 0 
     avg_accuracy = 0
     for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader,start = 1):
+        eval_image_data = eval_image_data.to(device)
+        eval_label_data = eval_label_data.to(device)
+
         eval_output = model(eval_image_data)
         eval_loss = loss_fn(eval_output, eval_label_data.squeeze())
         print("The loss during eval_loss is  :: ",eval_loss.item())
