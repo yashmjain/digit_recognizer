@@ -82,7 +82,7 @@ def main():
     
     
     
-    epoch = 30 
+    epoch = 50 
     
     for i in range(epoch):
         train(train_loader,optimizer,model,loss_fn,device)        
