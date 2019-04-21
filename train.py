@@ -74,21 +74,22 @@ def main():
     
     #Declare the checkpointsaver to save the model
     
-#    saver = util.CheckpointSaver('./trained_model',
-#                                 max_checkpoints=4,
-#                                 metric_name='NLL',
-#                                 maximize_metric=args.maximize_metric,
-#                                 log=log)
+    saver = util.CheckpointSaver('./trained_model',
+                                 max_checkpoints=4,
+                                 metric_name='Accuracy',
+                                 maximize_metric=True,
+                                 log=None)
     
     
     
-    epoch = 50 
+    epoch = 30 
     
     for i in range(epoch):
         train(train_loader,optimizer,model,loss_fn,device)        
         print("Starting evaluation ")
-        evaluate(eval_loader,model,loss_fn,device)
+        avg_accuracy = evaluate(eval_loader,model,loss_fn,device)
         print("Completed epoch ",i)
+        saver.save(i,model,avg_accuracy,device)
         
     
     
@@ -138,6 +139,9 @@ def evaluate(eval_loader,model,loss_fn,device):
         
         avg_accuracy =  avg_accuracy + running_corrects
         print("The average accuracy is :: ",avg_accuracy/batch_no)
+    return avg_accuracy
+        
+        
 
         
     

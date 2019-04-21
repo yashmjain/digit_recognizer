@@ -1,7 +1,6 @@
 # -*- coding: utf-8
 
 from pre_processing import load_image_binary_data,display_image
-import torch
 import torch.nn as nn
 import numpy as np
 import torch.nn.functional as F
