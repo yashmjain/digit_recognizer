@@ -10,11 +10,13 @@ import torch.utils.data as data
 import torch.optim as optim
 import torch.nn as nn
 import util
+from tensorboardX import SummaryWriter
 
 
 
 def main():
     IMAGE_TRAIN_PIXEL_FILE = "./data/train.csv"
+    MODEL_SAVED_DIR = "./trained_model"
     print ()
     dr = digit_recognizer()
     #Process the data before giving input to the model
@@ -74,20 +76,22 @@ def main():
     
     #Declare the checkpointsaver to save the model
     
-    saver = util.CheckpointSaver('./trained_model',
+    saver = util.CheckpointSaver(MODEL_SAVED_DIR,
                                  max_checkpoints=4,
                                  metric_name='Accuracy',
                                  maximize_metric=True,
                                  log=None)
     
+    #initilaize the tensorboard with the path of the model saved dir
+    tbx = SummaryWriter(MODEL_SAVED_DIR)
     
     
     epoch = 30 
     
     for i in range(epoch):
-        train(train_loader,optimizer,model,loss_fn,device)        
+        train(train_loader,optimizer,model,loss_fn,device,tbx)        
         print("Starting evaluation ")
-        avg_accuracy = evaluate(eval_loader,model,loss_fn,device)
+        avg_accuracy = evaluate(eval_loader,model,loss_fn,device,tbx)
         print("Completed epoch ",i)
         saver.save(i,model,avg_accuracy,device)
         
@@ -98,7 +102,7 @@ def main():
     
     
     
-def train(train_loader,optimizer,model,loss_fn,device):    
+def train(train_loader,optimizer,model,loss_fn,device,tbx):    
     #train the model   
     avg_loss = 0
     cum_loss = 0
@@ -114,10 +118,11 @@ def train(train_loader,optimizer,model,loss_fn,device):
         avg_loss = cum_loss/batch_no
         print("The average loss across batch is :: ",avg_loss)        
         print("The batch no is ",batch_no)
+        tbx.add_scalar('train/loss', avg_loss, batch_no)
         loss.backward()
         optimizer.step()
         
-def evaluate(eval_loader,model,loss_fn,device):
+def evaluate(eval_loader,model,loss_fn,device,tbx):
     #eval the data
     cum_loss = 0
     avg_eval_loss = 0
@@ -135,10 +140,11 @@ def evaluate(eval_loader,model,loss_fn,device):
         print("The average evaluation loss across batch is :: ",avg_eval_loss)
         preds = torch.argmax(eval_output,dim=1)
         running_corrects = (torch.sum(preds == eval_label_data.squeeze()).item()/(len(eval_label_data)))
-        print("The accuracy across epoch is ::",running_corrects)
-        
+        print("The accuracy across epoch is ::",running_corrects)        
         avg_accuracy =  avg_accuracy + running_corrects
         print("The average accuracy is :: ",avg_accuracy/batch_no)
+        tbx.add_scalar('eval/loss', avg_eval_loss, batch_no)
+        tbx.add_scalar('eval/accuracy', avg_accuracy, batch_no)
     return avg_accuracy
         
         
