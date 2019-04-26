@@ -136,7 +136,7 @@ def main():
             tbx.add_scalar('eval/accuracy', running_corrects, global_step_eval)
             global_step_eval = global_step_eval + 1
             log.info("The global step eval is {}".format(global_step_eval))
-        log.info("Completed epoch ",i)
+        log.info("Completed epoch {} ",i)
         saver.save(i,model,avg_accuracy,device)
         
     
