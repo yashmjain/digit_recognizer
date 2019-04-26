@@ -12,3 +12,5 @@ __pycache__/digit_recognizer_model.cpython-36.pyc
 data/first_image_pass_first_cnnlayer_with_relu_maxpool_outchannel_5_with_topmost_original_image.pdf
 *.tar
 *.Yash
+*.pyc
+.spyproject/workspace.ini
