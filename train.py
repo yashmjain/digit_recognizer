@@ -11,12 +11,14 @@ import torch.optim as optim
 import torch.nn as nn
 import util
 from tensorboardX import SummaryWriter
+import sys
 
 
 
-def main():
+def main(args):
     IMAGE_TRAIN_PIXEL_FILE = "./data/train.csv"
-    MODEL_SAVED_DIR = "./trained_model"
+    MODEL_SAVED_DIR = "./save"
+    MODEL_SAVED_DIR = util.get_save_dir(MODEL_SAVED_DIR,args[1],True)
     LOG_DIR = "./log"
     dr = digit_recognizer()
     log = util.get_basic_logger(LOG_DIR, "train")
@@ -87,37 +89,34 @@ def main():
     tbx = SummaryWriter(MODEL_SAVED_DIR)
     
     
-    epoch = 30 
-    cum_loss = 0
-    avg_loss = 0 
-    
-    cum_loss = 0
-    avg_eval_loss = 0
-    running_corrects = 0 
-    avg_accuracy = 0
+    epoch = 30   
     global_step_train = 0
     global_step_eval = 0
     
+    
     for i in range(epoch):
-        for batch_no,(train_image_data,train_label_data) in enumerate(train_loader,start =1 ):
-            train_image_data = train_image_data.to(device)
-            train_label_data = train_label_data.to(device)
-            optimizer.zero_grad()
-            output = model(train_image_data)       #train_image_data has shape batch_size*in_channel*H*W
-            loss = loss_fn(output, train_label_data.squeeze()) 
-            log.info("The loss during training is  :: {} ".format(loss.item()))
-            #cum_loss = cum_loss + loss.item()
-            #avg_loss = cum_loss/batch_no
-            #log.info("The average loss across batch is :: {}".format(avg_loss))        
-            #log.info("The batch no is {}".format(batch_no))
-            tbx.add_scalar('train/loss', loss.item(), global_step_train)
-            loss.backward()
-            optimizer.step()     
-            global_step_train = global_step_train + 1
-            log.info("The global step train is {}".format(global_step_train))
+        
+        log.info("Starting training")
+        global_step_train = train(train_loader,model,loss_fn,device,optimizer,tbx,log,global_step_train)
+        
         log.info("Starting evaluation ")
-        #avg_accuracy = evaluate(eval_loader,model,loss_fn,device,tbx)
-        for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader,start = 1):
+        accuracy,global_step_eval = evaluate(eval_loader,model,loss_fn,device,tbx,log,global_step_eval)
+        
+        log.info("Completed epoch {} ".format(i))
+        saver.save(i,model,accuracy,device)
+    
+        
+    
+    
+    
+    
+    
+    
+    
+def evaluate(eval_loader,model,loss_fn,device,tbx,log,global_step_eval):
+    #eval the data
+    
+    for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader,start = 1):
             eval_image_data = eval_image_data.to(device)
             eval_label_data = eval_label_data.to(device)
     
@@ -136,43 +135,34 @@ def main():
             tbx.add_scalar('eval/accuracy', running_corrects, global_step_eval)
             global_step_eval = global_step_eval + 1
             log.info("The global step eval is {}".format(global_step_eval))
-        log.info("Completed epoch {} ",i)
-        saver.save(i,model,avg_accuracy,device)
-        
     
-    
-    
-    
-    
-    
-    
-def evaluate(eval_loader,model,loss_fn,device,tbx):
-    #eval the data
+    return running_corrects,global_step_eval
 
-    for batch_no,(eval_image_data,eval_label_data) in enumerate(eval_loader,start = 1):
-        eval_image_data = eval_image_data.to(device)
-        eval_label_data = eval_label_data.to(device)
 
-        eval_output = model(eval_image_data)
-        eval_loss = loss_fn(eval_output, eval_label_data.squeeze())
-        log.info("The loss during eval_loss is  :: ",eval_loss.item())
-        cum_loss = cum_loss + eval_loss.item()
-        avg_eval_loss = cum_loss/batch_no
-        log.info("The average evaluation loss across batch is :: ",avg_eval_loss)
-        preds = torch.argmax(eval_output,dim=1)
-        running_corrects = (torch.sum(preds == eval_label_data.squeeze()).item()/(len(eval_label_data)))
-        log.info("The accuracy across epoch is ::",running_corrects)        
-        avg_accuracy =  avg_accuracy + running_corrects
-        log.info("The average accuracy is :: ",avg_accuracy/batch_no)
-        tbx.add_scalar('eval/loss', avg_eval_loss, batch_no)
-        tbx.add_scalar('eval/accuracy', avg_accuracy, batch_no)
-    return avg_accuracy
-        
+def train(train_loader,model,loss_fn,device,optimizer,tbx,log,global_step_train):
+
+    for batch_no,(train_image_data,train_label_data) in enumerate(train_loader,start =1 ):
+            train_image_data = train_image_data.to(device)
+            train_label_data = train_label_data.to(device)
+            optimizer.zero_grad()
+            output = model(train_image_data)       #train_image_data has shape batch_size*in_channel*H*W
+            loss = loss_fn(output, train_label_data.squeeze()) 
+            log.info("The loss during training is  :: {} ".format(loss.item()))
+            #cum_loss = cum_loss + loss.item()
+            #avg_loss = cum_loss/batch_no
+            #log.info("The average loss across batch is :: {}".format(avg_loss))        
+            #log.info("The batch no is {}".format(batch_no))
+            tbx.add_scalar('train/loss', loss.item(), global_step_train)
+            loss.backward()
+            optimizer.step()     
+            global_step_train = global_step_train + 1
+            log.info("The global step train is {}".format(global_step_train))
+    return global_step_train
         
 
         
     
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[:])
 
