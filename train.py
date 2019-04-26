@@ -89,7 +89,7 @@ def main(args):
     tbx = SummaryWriter(MODEL_SAVED_DIR)
     
     
-    epoch = 30   
+    epoch = int(args[2])   
     global_step_train = 0
     global_step_eval = 0
     
