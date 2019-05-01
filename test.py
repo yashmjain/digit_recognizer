@@ -42,7 +42,7 @@ def test(test_image_data,model):
     
     
 def write_csv(test_output):        
-    df = pd.DataFrame(test_output.numpy(),columns=['Label'],dtype=np.int8)
+    df = pd.DataFrame(test_output.cpu().numpy(),columns=['Label'],dtype=np.int8)
     df.index +=1
     df.to_csv('./test/submission.csv',index_label='ImageId')
     
