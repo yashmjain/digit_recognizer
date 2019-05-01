@@ -13,19 +13,19 @@ def main(args):
     READ_TEST_CSV = './data/test.csv'
     checkpoint_path = args[1]
     test_image_data = read_test_data(READ_TEST_CSV)
+    device,gpu_ids = util.get_available_devices()
     test_image_data = np.array(test_image_data).reshape(-1,1,28,28)
-    test_image_data = torch.from_numpy(test_image_data).float()
-    
-    model = load_model(checkpoint_path)
+    test_image_data = torch.from_numpy(test_image_data).float()    
+    model = load_model(checkpoint_path,gpu_ids)
+    model = model.to(device)
+    test_image_data = test_image_data.to(device)
     test_output = test(test_image_data,model)  
     write_csv(test_output)
     
     
-def load_model(checkpoint_path):
-    model = digit_recognizer()     
-    device,gpu_ids = util.get_available_devices()
-    model = util.load_model(model,checkpoint_path,gpu_ids,False)
-    model = model.to(device)
+def load_model(checkpoint_path,gpu_ids):
+    model = digit_recognizer()    
+    model = util.load_model(model,checkpoint_path,gpu_ids,False)   
     return model
     
     

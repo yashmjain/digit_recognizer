@@ -7,3 +7,7 @@ args
 
 
 Ex : python train.py model 50
+
+To test the model speicfy the location of the best model saved
+
+Ex : python test.py "./save/train/model_50_epoch-02/best.pth.tar"
