@@ -225,6 +225,33 @@ def get_save_dir(base_dir, name, training, id_max=100):
                        Delete old save directories or use another name.')
     
     
+
+def load_model(model, checkpoint_path, gpu_ids, return_step=True):
+    """Load model parameters from disk.
+
+    Args:
+        model (torch.nn.DataParallel): Load parameters into this model.
+        checkpoint_path (str): Path to checkpoint to load.
+        gpu_ids (list): GPU IDs for DataParallel.
+        return_step (bool): Also return the step at which checkpoint was saved.
+
+    Returns:
+        model (torch.nn.DataParallel): Model loaded from checkpoint.
+        step (int): Step at which checkpoint was saved. Only if `return_step`.
+    """
+    device = 'cuda:{}'.format(gpu_ids[0]) if gpu_ids else 'cpu'
+    ckpt_dict = torch.load(checkpoint_path, map_location=device)
+
+    # Build model, load parameters
+    model.load_state_dict(ckpt_dict['model_state'])
+
+    if return_step:
+        step = ckpt_dict['step']
+        return model, step
+
+    return model
+    
+    
     
     
     
